@@ -9,12 +9,14 @@ This project began with a simple goal: learning machine learning by building som
 The initial focus is PM2.5 prediction across Los Angeles, but the long term vision is to move toward environmental intelligence and risk aware predictions.
 
 🚀 Why this project exists  
+
 Air quality looks simple until you try to model it. A baseline model that uses previous pollutant values performs surprisingly well because pollution has strong persistence. But that only captures continuity, not the underlying environmental behavior. This project explores questions like:
 - Does weather actually improve predictions?
 - Why does the same model behave differently across locations?
 - Can we move beyond simple forecasting toward meaningful environmental insight?
 
 🎯 Goals
+
 - Build a strong PM2.5 baseline model using real sensor data
 - Integrate weather and wind signals to capture transport and dispersion effects
 - Evaluate performance at the site level, not just global averages
@@ -22,6 +24,7 @@ Air quality looks simple until you try to model it. A baseline model that uses p
 - Move toward regime aware modeling and risk based insights
 
 📊 Data Sources
+
 - EPA AQS hourly air quality measurements
 - NOAA Global Hourly weather datasets
 - Station metadata including geographic coordinates
@@ -33,6 +36,7 @@ Air quality looks simple until you try to model it. A baseline model that uses p
   - Spatial station mapping
 
 🧠 Modeling Approach  
+
 Current experiments include:
 - Random Forest regression baseline
 - Temporal and environmental feature engineering
@@ -43,12 +47,14 @@ Current experiments include:
 Adding weather does not uniformly improve performance. Some sites improve significantly while others degrade, suggesting that pollution behavior is regime dependent rather than universal.
 
 📈 What I’ve learned so far
+
 - Persistence is an extremely strong baseline
 - Aggregate metrics can hide important local behavior
 - Weather driven transport matters in some regions but introduces noise in others
 - Evaluating models geographically changes how you interpret results
 
 🔭 Where this is going  
+
 Planned next steps:
 - Regime classification for site specific modeling
 - Risk index generation instead of pure concentration prediction
@@ -57,13 +63,14 @@ Planned next steps:
 - Expansion beyond PM2.5
 
 🛠️ Tech Stack
+
 - Python
 - pandas
 - NumPy
 - scikit learn
 - matplotlib
 
-📂 Project Structure (actual)
+📂 Project Structure
 
 ```
 shvaas/
@@ -85,4 +92,5 @@ shvaas/
 ```
 
 📌 Project Status  
+
 Active learning and experimentation project. This repository documents the journey of learning machine learning through building a real world system and iterating based on observed behavior rather than assumptions.
