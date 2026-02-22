@@ -8,127 +8,81 @@ This project began with a simple goal: learning machine learning by building som
 
 The initial focus is PM2.5 prediction across Los Angeles, but the long term vision is to move toward environmental intelligence and risk aware predictions.
 
-🚀 Why this project exists
-
-Air quality looks simple until you try to model it.
-
-A baseline model that uses previous pollutant values performs surprisingly well because pollution has strong persistence. But that only captures continuity, not the underlying environmental behavior.
-
-This project explores questions like:
-
-Does weather actually improve predictions?
-
-Why does the same model behave differently across locations?
-
-Can we move beyond simple forecasting toward meaningful environmental insight?
+🚀 Why this project exists  
+Air quality looks simple until you try to model it. A baseline model that uses previous pollutant values performs surprisingly well because pollution has strong persistence. But that only captures continuity, not the underlying environmental behavior. This project explores questions like:
+- Does weather actually improve predictions?
+- Why does the same model behave differently across locations?
+- Can we move beyond simple forecasting toward meaningful environmental insight?
 
 🎯 Goals
-
-Build a strong PM2.5 baseline model using real sensor data
-
-Integrate weather and wind signals to capture transport and dispersion effects
-
-Evaluate performance at the site level, not just global averages
-
-Understand where environmental features help and where they add noise
-
-Move toward regime aware modeling and risk based insights
+- Build a strong PM2.5 baseline model using real sensor data
+- Integrate weather and wind signals to capture transport and dispersion effects
+- Evaluate performance at the site level, not just global averages
+- Understand where environmental features help and where they add noise
+- Move toward regime aware modeling and risk based insights
 
 📊 Data Sources
+- EPA AQS hourly air quality measurements
+- NOAA Global Hourly weather datasets
+- Station metadata including geographic coordinates
+- Features used:
+  - Historical pollutant concentration  
+  - Temperature, humidity, pressure  
+  - Wind speed and direction  
+  - Time based cyclic features (hour and daily patterns)  
+  - Spatial station mapping
 
-EPA AQS hourly air quality measurements
-
-NOAA Global Hourly weather datasets
-
-Station metadata including geographic coordinates
-
-Features used
-
-Historical pollutant concentration
-
-Temperature, humidity, pressure
-
-Wind speed and direction
-
-Time based cyclic features (hour and daily patterns)
-
-Spatial station mapping
-
-🧠 Modeling Approach
-
+🧠 Modeling Approach  
 Current experiments include:
+- Random Forest regression baseline
+- Temporal and environmental feature engineering
+- Site level performance analysis
+- Comparison between persistence driven models and weather enhanced models
 
-Random Forest regression baseline
-
-Temporal and environmental feature engineering
-
-Site level performance analysis
-
-Comparison between persistence driven models and weather enhanced models
-
-Key insight so far
-
-Adding weather does not uniformly improve performance.
-
-Some sites improve significantly while others degrade, suggesting that pollution behavior is regime dependent rather than universal.
+**Key insight so far**  
+Adding weather does not uniformly improve performance. Some sites improve significantly while others degrade, suggesting that pollution behavior is regime dependent rather than universal.
 
 📈 What I’ve learned so far
+- Persistence is an extremely strong baseline
+- Aggregate metrics can hide important local behavior
+- Weather driven transport matters in some regions but introduces noise in others
+- Evaluating models geographically changes how you interpret results
 
-Persistence is an extremely strong baseline
-
-Aggregate metrics can hide important local behavior
-
-Weather driven transport matters in some regions but introduces noise in others
-
-Evaluating models geographically changes how you interpret results
-
-🔭 Where this is going
-
+🔭 Where this is going  
 Planned next steps:
-
-Regime classification for site specific modeling
-
-Risk index generation instead of pure concentration prediction
-
-Hyperlocal interpolation between monitoring stations
-
-Uncertainty estimation and confidence bands
-
-Expansion beyond PM2.5
+- Regime classification for site specific modeling
+- Risk index generation instead of pure concentration prediction
+- Hyperlocal interpolation between monitoring stations
+- Uncertainty estimation and confidence bands
+- Expansion beyond PM2.5
 
 🛠️ Tech Stack
-
-Python
-
-pandas
-
-NumPy
-
-scikit learn
-
-matplotlib
+- Python
+- pandas
+- NumPy
+- scikit learn
+- matplotlib
 
 📂 Project Structure (actual)
+
+```
 shvaas/
-│
-├── data/
-│   ├── raw/            # Original inputs (git-ignored, .gitkeep to preserve tree)
-│   ├── interim/        # Cleaned/intermediate tables
-│   └── processed/      # Modeling-ready datasets
+├── data/               # Raw, interim, processed datasets (git-ignored contents, .gitkeep kept)
+│   ├── raw/
+│   ├── interim/
+│   └── processed/
 ├── docs/               # Data & pipeline guides
-├── src/
+├── src/                # Core code
 │   ├── data_ingestion/ # Raw → interim cleaning/aggregation
 │   ├── features/       # Feature engineering / prep
 │   ├── models/         # Baseline + weather-aware models
 │   └── visualization/  # Plots and exploratory utilities
-├── reports/
-│   └── figures/        # Generated figures
+├── reports/            # Generated outputs
+│   └── figures/
 ├── requirements.txt
 ├── README.md
 └── CONTRIBUTING.md
+```
 
-📌 Project Status
-
-Active learning and experimentation project.
-
-This repository documents the journey of learning machine learning through building a real world system and iterating based on observed behavior rather than assumptions.
+📌 Project Status  
+Active learning and experimentation project. This repository documents the journey of learning machine learning through building a real world system and iterating based on observed behavior rather than assumptions.
