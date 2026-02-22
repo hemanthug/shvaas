@@ -1,0 +1,37 @@
+.venv/
+.env
+
+# Bytecode and compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Packaging
+build/
+dist/
+*.egg-info/
+
+# Logs and caches
+*.log
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Editors/IDEs
+.idea/
+.vscode/
+
+# Data directories (keep structure with .gitkeep)
+data/raw/**
+data/interim/**
+data/processed/**
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# OS cruft
+.DS_Store
+Thumbs.db
