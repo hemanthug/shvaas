@@ -1,4 +1,4 @@
-# 🌍 Shvaas
+# Shvaas
 
 Hyperlocal air quality prediction using machine learning and environmental data.
 
@@ -127,8 +127,7 @@ shvaas/
 ├── requirements.txt
 ├── README.md
 └── CONTRIBUTING.md
-
----
+```
 
 ## 📌 Project Status  
 
