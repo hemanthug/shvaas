@@ -1,4 +1,5 @@
 from pathlib import Path
+import json
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -10,7 +11,9 @@ from sklearn.metrics import mean_absolute_error
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
+REPORTS_DIR = PROJECT_ROOT / "reports"
 FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 # ----------------------------
 # Inputs
@@ -59,6 +62,16 @@ def add_grouped_rolling_wind(df, wind_col="wind_speed_mps", group_col="site_id",
     )
     return df
 
+
+def compute_spike_mae(y_true, y_pred, site_ids):
+    metrics_df = pd.DataFrame({"y_true": y_true, "y_pred": y_pred, "site_id": site_ids})
+    thresholds = metrics_df.groupby("site_id")["y_true"].quantile(0.90).rename("thresh").reset_index()
+    metrics_df = metrics_df.merge(thresholds, on="site_id", how="left")
+    spike_rows = metrics_df[metrics_df["y_true"] >= metrics_df["thresh"]]
+    if spike_rows.empty:
+        return np.nan
+    return mean_absolute_error(spike_rows["y_true"], spike_rows["y_pred"])
+
 # ----------------------------
 # Load + prep
 # ----------------------------
@@ -82,6 +95,25 @@ weather_features = [
 # Keep rows where weather exists
 pm25_data = pm25_data.dropna(subset=weather_features).copy()
 
+# SOURCE_ATTRIBUTION_HOOKPOINT
+source_features_path = PROCESSED_DIR / "source_attribution" / "source_features.csv"
+source_feature_columns = []
+if source_features_path.exists():
+    source_features = pd.read_csv(source_features_path, low_memory=False)
+    if {"site_id", "date"}.issubset(set(source_features.columns)):
+        source_features["date"] = pd.to_datetime(source_features["date"], errors="coerce")
+        source_feature_columns = [c for c in source_features.columns if c.startswith("srcinf_")]
+        pm25_data = pm25_data.merge(
+            source_features[["site_id", "date"] + source_feature_columns],
+            on=["site_id", "date"],
+            how="left",
+        )
+        if source_feature_columns:
+            pm25_data[source_feature_columns] = pm25_data[source_feature_columns].fillna(0.0)
+        print(f"Merged source attribution features from: {source_features_path}")
+    else:
+        print(f"Skipping source feature merge due to missing keys in: {source_features_path}")
+
 # ----------------------------
 # Split (block approach)
 # ----------------------------
@@ -100,9 +132,12 @@ val_data = pm25_data[pm25_data["block_id"] == 4].copy()
 # ----------------------------
 baseline_model = RandomForestRegressor(random_state=1)
 weather_model = RandomForestRegressor(random_state=1)
+source_model = RandomForestRegressor(random_state=1)
 
 baseline_model.fit(train_data[baseline_features], train_data["pm25"])
 weather_model.fit(train_data[baseline_features + weather_features], train_data["pm25"])
+if source_feature_columns:
+    source_model.fit(train_data[baseline_features + source_feature_columns], train_data["pm25"])
 
 # ----------------------------
 # Tune a single global wind threshold on gate_data (block 2)
@@ -160,6 +195,47 @@ mae_regime = mean_absolute_error(val_results["pm25"], val_results["prediction"])
 print(f"Validation MAE baseline: {mae_baseline:.3f}")
 print(f"Validation MAE weather:  {mae_weather:.3f}")
 print(f"Validation MAE regime:   {mae_regime:.3f}")
+
+if source_feature_columns:
+    val_results["pred_baseline_plus_source"] = source_model.predict(
+        val_results[baseline_features + source_feature_columns]
+    )
+    mae_source = mean_absolute_error(val_results["pm25"], val_results["pred_baseline_plus_source"])
+
+    spike_baseline = compute_spike_mae(
+        y_true=val_results["pm25"].values,
+        y_pred=val_results["pred_baseline"].values,
+        site_ids=val_results["site_id"].values,
+    )
+    spike_source = compute_spike_mae(
+        y_true=val_results["pm25"].values,
+        y_pred=val_results["pred_baseline_plus_source"].values,
+        site_ids=val_results["site_id"].values,
+    )
+
+    metrics_table = pd.DataFrame(
+        [
+            {"model": "baseline", "overall_mae": mae_baseline, "spike_mae": spike_baseline},
+            {"model": "baseline_plus_source", "overall_mae": mae_source, "spike_mae": spike_source},
+        ]
+    )
+    print("\nSource feature comparison:")
+    print(metrics_table.to_string(index=False))
+
+    metrics_payload = {
+        "baseline": {
+            "overall_mae": float(mae_baseline),
+            "spike_mae_top10pct_per_sensor": float(spike_baseline),
+        },
+        "baseline_plus_source": {
+            "overall_mae": float(mae_source),
+            "spike_mae_top10pct_per_sensor": float(spike_source),
+        },
+    }
+    metrics_path = REPORTS_DIR / "new_rfr_source_feature_metrics.json"
+    with metrics_path.open("w", encoding="utf-8") as f:
+        json.dump(metrics_payload, f, indent=2)
+    print(f"Saved source-feature metrics JSON: {metrics_path}")
 
 # ----------------------------
 # Plot at target location, matching your PM-only plot style

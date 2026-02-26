@@ -91,6 +91,7 @@ Adding weather does not uniformly improve performance. Some sites improve signif
 Planned next steps:
 
 - Regime classification for site specific modeling  
+- Residual-spike source attribution to infer practical upwind source zones  
 - Risk index generation instead of pure concentration prediction  
 - Hyperlocal interpolation between monitoring stations  
 - Uncertainty estimation and confidence bands  
